@@ -22,7 +22,7 @@ columns = [20, 21, 15, 16, 14, 14]
 for i, column in enumerate(columns):
     colours += genColumn(True, column)
 
-MESSAGE = bytes(colours)
+MESSAGE = b''.join([x.to_bytes(2, byteorder='big') for x in colours])
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.sendto(MESSAGE, (UDP_IP, UDP_PORT))
