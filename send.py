@@ -23,7 +23,7 @@ colours.extend(genColumn(138, 100, 50, 16))
 colours.extend(genColumn(222, 100, 100, 14))
 colours.extend(genColumn(292, 95, 53, 14))
 
-MESSAGE = b''.join([x.to_bytes(2, byteorder='big') for x in colours])
+MESSAGE = bytes(colours)
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.sendto(MESSAGE, (UDP_IP, UDP_PORT))
