@@ -4,20 +4,8 @@ body {
   text-align: center;
 }
 
-div.btn-group {
-  margin: auto;
-}
-
-div.container div {
+button {
   margin-top: .5rem;
-}
-
-h4 {
-  margin-top: .5rem;
-}
-
-h5 {
-  margin-top: 1rem;
 }
 
 #status {
