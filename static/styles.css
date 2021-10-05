@@ -8,6 +8,10 @@ button {
   margin-top: .5rem;
 }
 
+h3 {
+  margin-top: .5rem;
+}
+
 #status {
   max-width: 30rem;
   margin: auto;
