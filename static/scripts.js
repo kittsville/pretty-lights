@@ -6,6 +6,7 @@ const addStatus = statusText => {
   status.textContent = statusText;
   statusBar.appendChild(status);
 
+  setTimeout(() => {statusBar.removeChild(status)}, 3000);
 }
 
 const convertColor = colour => {
