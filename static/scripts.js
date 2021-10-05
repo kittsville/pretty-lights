@@ -19,8 +19,6 @@ const convertColor = colour => {
 }
 
 const sendColors = colours => {
-  colours.forEach(color => console.log(`Sending HSV(${hue}, ${sat}, ${lum})`));
-
   const url = `/lights`;
   fetch(url, {
     method  : 'POST',
@@ -33,7 +31,7 @@ const sendColors = colours => {
     .catch(e => addStatus('Error: ' + e));
 }
 
-document.getElementById('custom-color').addEventListener('input', ev => sendColors([ev.target.value]));
+document.getElementById('custom-color').addEventListener('input', ev => sendColors([convertColor(chroma(ev.target.value))]));
 
 document.querySelectorAll('button').forEach(button => {
   const colors = button.getAttribute('colors').split(',').map(c => convertColor(chroma(c)));
