@@ -1,5 +1,7 @@
 # pretty-lights
-IoT Lighting Toolkit
 
-Length of columns (left to right):
-21, 20, 15, 16, 14, 14
+A toolkit for using and testing the addressable LED lights on the stairs.
+
+![Screenshot of lights control UI](screenshot.png)
+
+Based on [localwood](https://github.com/The-Silverwood-Institute/Localwood), the smart socket control panel.
