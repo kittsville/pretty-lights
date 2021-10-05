@@ -21,4 +21,7 @@ h3 {
 
 em {
   display: block;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 2s, opacity 2s linear;
 }

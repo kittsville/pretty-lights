@@ -9,8 +9,8 @@ const addStatus = statusText => {
   setTimeout(() => {statusBar.removeChild(status)}, 3000);
 }
 
-const convertColor = colour => {
-  const [rawHue, rawSat, rawLum] = colour.hsv();
+const convertColor = color => {
+  const [rawHue, rawSat, rawLum] = color.hsv();
 
   const hue = isNaN(rawHue) ? 0 : Math.round((rawHue / 360) * 255);
   const sat = Math.round(rawSat * 255);
@@ -19,11 +19,11 @@ const convertColor = colour => {
   return {hue, sat, lum};
 }
 
-const sendColors = colours => {
+const sendColors = colors => {
   const url = `/lights`;
   fetch(url, {
     method  : 'POST',
-    body    : JSON.stringify(colours),
+    body    : JSON.stringify(colors),
     headers: {
       'Content-Type': 'application/json'
     }
@@ -52,7 +52,7 @@ const colorButtons = async function() {
       button.style.backgroundColor = colors[0].css();
 
       // This is unnecessarily complicated but I loved writing it
-      // Should probably just use CSS so the colours don't 'pop' into place
+      // Should probably just use CSS so the colors don't 'pop' into place
       button.style.color = chroma.contrast(colors[0], white) > chroma.contrast(colors[0], black) ? white.css() : black.css();
       button.style.border = 'none';
     }
