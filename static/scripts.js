@@ -6,6 +6,7 @@ const addStatus = statusText => {
   status.textContent = statusText;
   statusBar.appendChild(status);
 
+  setTimeout(() => {status.classList.add('disappearing')}, 2000);
   setTimeout(() => {statusBar.removeChild(status)}, 3000);
 }
 
