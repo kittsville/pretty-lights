@@ -1,3 +1,5 @@
+const white = chroma('white');
+const black = chroma('black');
 const statusBar = document.getElementById('status');
 const addStatus = statusText => {
   const status = document.createElement('em');
@@ -6,20 +8,18 @@ const addStatus = statusText => {
 
 }
 
-const sendColors = rawColors => {
-  const colours = rawColors.map(rawColor => {
-    const colour = chroma(rawColor);
+const convertColor = colour => {
+  const [rawHue, rawSat, rawLum] = colour.hsv();
 
-    const [rawHue, rawSat, rawLum] = colour.hsv();
+  const hue = isNaN(rawHue) ? 0 : Math.round((rawHue / 360) * 255);
+  const sat = Math.round(rawSat * 255);
+  const lum = Math.round(rawLum * 255);
 
-    const hue = isNaN(rawHue) ? 0 : Math.round((rawHue / 360) * 255);
-    const sat = Math.round(rawSat * 255);
-    const lum = Math.round(rawLum * 255);
+  return {hue, sat, lum};
+}
 
-    console.log(`Sending HSV(${hue}, ${sat}, ${lum})`);
-
-    return {hue, sat, lum};
-  });
+const sendColors = colours => {
+  colours.forEach(color => console.log(`Sending HSV(${hue}, ${sat}, ${lum})`));
 
   const url = `/lights`;
   fetch(url, {
@@ -35,8 +35,29 @@ const sendColors = rawColors => {
 
 document.getElementById('custom-color').addEventListener('input', ev => sendColors([ev.target.value]));
 
-document.querySelectorAll('button').forEach(button => button.addEventListener('click', () => {
-  sendColors(button.getAttribute('colors').split(','));
+document.querySelectorAll('button').forEach(button => {
+  const colors = button.getAttribute('colors').split(',').map(c => convertColor(chroma(c)));
 
-  button.blur();
-}));
+  button.addEventListener('click', () => {
+    sendColors(colors);
+
+    button.blur();
+  });
+});
+
+const colorButtons = async function() {
+  document.querySelectorAll('button').forEach(button => {
+    const colors = button.getAttribute('colors').split(',').map(c => chroma(c));
+
+    if (colors.length == 1) {
+      button.style.backgroundColor = colors[0].css();
+
+      // This is unnecessarily complicated but I loved writing it
+      // Should probably just use CSS so the colours don't 'pop' into place
+      button.style.color = chroma.contrast(colors[0], white) > chroma.contrast(colors[0], black) ? white.css() : black.css();
+      button.style.border = 'none';
+    }
+  });
+}
+
+colorButtons();
