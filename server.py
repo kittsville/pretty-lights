@@ -1,12 +1,15 @@
 import os
 import web
 import json
+import time
 import socket
 import logging
 
 UDP_IP      = '192.168.1.56'
 UDP_PORT    = 12345
 LED_COLUMNS = [20, 21, 15, 16, 14, 14]
+
+cache_bust = int(time.time())
 
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
 
@@ -33,7 +36,7 @@ def getValue(params, name):
 
 class homepage:
     def GET(self):
-        return render.homepage()
+        return render.homepage(cache_bust)
 
 class lights:
     def POST(self):
