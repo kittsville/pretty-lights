@@ -1,1 +1,2 @@
 web.py==0.40-dev1
+redis==3.5.3

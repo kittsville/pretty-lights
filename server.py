@@ -2,15 +2,21 @@ import os
 import web
 import json
 import time
+import redis
 import random
 import socket
 import logging
 
-UDP_IP      = '192.168.1.56'
-UDP_PORT    = 12345
-LED_COLUMNS = [20, 21, 15, 16, 14, 14]
+UDP_IP          = '192.168.1.56'
+UDP_PORT        = 12345
+LED_COLUMNS     = [20, 21, 15, 16, 14, 14]
+SECONDS_TO_IDLE = 60 * 29
+REDIS_COLOR_KEY = 'pl:color'
 
-cache_bust = int(time.time())
+# State management
+cacheBust   = int(time.time())
+r           = redis.Redis()
+r.ping()
 
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
 
@@ -45,17 +51,36 @@ def sendLedData(led_data):
 
 class homepage:
     def GET(self):
-        return render.homepage(cache_bust)
+        return render.homepage(cacheBust)
 
 class randomColor:
     def POST(self):
+        params = web.input()
+
+        onlyOnIdle  = params.get('automated')
+        now         = int(time.time())
+
+        if onlyOnIdle:
+            rawLastColorChange  = r.get(REDIS_COLOR_KEY)
+            lastColorChange     = int(rawLastColorChange) if rawLastColorChange else 0
+
+            secondUntilIdle = lastColorChange + SECONDS_TO_IDLE - now
+
+            if secondUntilIdle > 0:
+                logging.info(f"Ignoring automated colour request, not idle for another {secondUntilIdle / 60} mins")
+                return
+
         hue = random.randint(0, 255)
         sat = 255
         lum = 255
 
         led_data = [hue, sat, lum] * 100
 
-        return sendLedData(led_data)
+        response = sendLedData(led_data)
+
+        r.set(REDIS_COLOR_KEY, now)
+
+        return response
 
 class lights:
     def POST(self):
@@ -85,7 +110,11 @@ class lights:
 
             led_data.extend(column_led_data)
 
-        return sendLedData(led_data)
+        response = sendLedData(led_data)
+
+        r.set(REDIS_COLOR_KEY, int(time.time()))
+
+        return response
 
 if __name__ == "__main__":
     app.run()
