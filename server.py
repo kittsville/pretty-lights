@@ -5,12 +5,18 @@ import time
 import random
 import socket
 import logging
+import sqlite3
 
-UDP_IP      = '192.168.1.56'
-UDP_PORT    = 12345
-LED_COLUMNS = [20, 21, 15, 16, 14, 14]
+from helpers import db_ops
 
-cache_bust = int(time.time())
+UDP_IP          = '192.168.1.56'
+UDP_PORT        = 12345
+LED_COLUMNS     = [20, 21, 15, 16, 14, 14]
+SECONDS_TO_IDLE = 30 * 60
+
+# State management
+cacheBust       = int(time.time())
+db_ops.setupDb(db_ops.connect())
 
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
 
@@ -45,10 +51,34 @@ def sendLedData(led_data):
 
 class homepage:
     def GET(self):
-        return render.homepage(cache_bust)
+        return render.homepage(cacheBust)
 
 class randomColor:
     def POST(self):
+        params = web.input()
+
+        con         = db_ops.connect()
+        cur         = con.cursor()
+        onlyOnIdle  = params.get('onlyOnIdle')
+        now         = int(time.time())
+
+        if onlyOnIdle:
+            cur.execute('SELECT modified_at FROM color LIMIT 1')
+            rawLastColorChange  = cur.fetchone()
+            lastColorChange     = int(rawLastColorChange[0]) if rawLastColorChange else None
+
+            print(now)
+            print(lastColorChange)
+
+            if lastColorChange and now > lastColorChange + SECONDS_TO_IDLE:
+                logging.info("Ignoring random colour request, not yet idle")
+                return
+
+        cur.execute('DELETE FROM color')
+        cur.execute('INSERT INTO color VALUES (?)', (now,))
+        con.commit()
+        con.close()
+
         hue = random.randint(0, 255)
         sat = 255
         lum = 255

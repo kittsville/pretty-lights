@@ -36,7 +36,7 @@ const sendColors = colors => {
 document.getElementById('custom-color').addEventListener('input', ev => sendColors([convertColor(chroma(ev.target.value))]));
 
 document.getElementById('random').addEventListener('click', () => {
-  const url = `/random`;
+  const url = `/random?onlyOnIdle=1`;
   fetch(url, { method : 'POST' })
     .then(response => addStatus(response.statusText))
     .catch(e => addStatus('Error: ' + e));
