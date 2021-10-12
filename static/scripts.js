@@ -35,7 +35,14 @@ const sendColors = colors => {
 
 document.getElementById('custom-color').addEventListener('input', ev => sendColors([convertColor(chroma(ev.target.value))]));
 
-document.querySelectorAll('button').forEach(button => {
+document.getElementById('random').addEventListener('click', () => {
+  const url = `/random`;
+  fetch(url, { method : 'POST' })
+    .then(response => addStatus(response.statusText))
+    .catch(e => addStatus('Error: ' + e));
+});
+
+document.querySelectorAll('button[colors]').forEach(button => {
   const colors = button.getAttribute('colors').split(',').map(c => convertColor(chroma(c)));
 
   button.addEventListener('click', () => {
@@ -46,7 +53,7 @@ document.querySelectorAll('button').forEach(button => {
 });
 
 const colorButtons = async function() {
-  document.querySelectorAll('button').forEach(button => {
+  document.querySelectorAll('button[colors]').forEach(button => {
     const colors = button.getAttribute('colors').split(',').map(c => chroma(c));
 
     if (colors.length == 1) {

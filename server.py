@@ -2,6 +2,7 @@ import os
 import web
 import json
 import time
+import random
 import socket
 import logging
 
@@ -15,7 +16,8 @@ logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
 
 urls = (
     '/', 'homepage',
-    '/lights', 'lights'
+    '/lights', 'lights',
+    '/random', 'randomColor'
 )
 render = web.template.render('templates/')
 app = web.application(urls, globals())
@@ -34,9 +36,26 @@ def getValue(params, name):
 
     return value
 
+def sendLedData(led_data):
+    raw_led_data = bytes(led_data)
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.sendto(raw_led_data, (UDP_IP, UDP_PORT))
+    return sock.recv(4)
+
 class homepage:
     def GET(self):
         return render.homepage(cache_bust)
+
+class randomColor:
+    def POST(self):
+        hue = random.randint(0, 255)
+        sat = 255
+        lum = 255
+
+        led_data = [hue, sat, lum] * 100
+
+        return sendLedData(led_data)
 
 class lights:
     def POST(self):
@@ -66,11 +85,7 @@ class lights:
 
             led_data.extend(column_led_data)
 
-        raw_led_data = bytes(led_data)
-
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.sendto(raw_led_data, (UDP_IP, UDP_PORT))
-        return sock.recv(4)
+        return sendLedData(led_data)
 
 if __name__ == "__main__":
     app.run()
