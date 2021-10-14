@@ -20,9 +20,9 @@ const convertColor = color => {
   return {hue, sat, lum};
 }
 
-const sendColors = colors => {
+const sendColors = (colors, multiplier) => {
   const payload = {
-    multiplier : 'columns',
+    multiplier : multiplier ? multiplier : 'columns',
     colors
   }
 
@@ -48,10 +48,11 @@ document.getElementById('random').addEventListener('click', () => {
 });
 
 document.querySelectorAll('button[colors]').forEach(button => {
-  const colors = button.getAttribute('colors').split(',').map(c => convertColor(chroma(c)));
+  const colors      = button.getAttribute('colors').split(',').map(c => convertColor(chroma(c)));
+  const multiplier  = button.getAttribute('multiplier');
 
   button.addEventListener('click', () => {
-    sendColors(colors);
+    sendColors(colors, multiplier);
 
     button.blur();
   });
