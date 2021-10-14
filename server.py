@@ -9,13 +9,14 @@ import logging
 
 UDP_IP          = '192.168.1.56'
 UDP_PORT        = 12345
+COLOR_GAP       = 40
 LED_COLUMNS     = [20, 21, 15, 16, 14, 14]
 SECONDS_TO_IDLE = 60 * 29
 REDIS_COLOR_KEY = 'pl:color'
 
 # State management
 cacheBust   = int(time.time())
-r           = redis.Redis()
+r           = redis.Redis(charset="utf-8", decode_responses=True)
 r.ping()
 
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
@@ -60,17 +61,23 @@ class randomColor:
         onlyOnIdle  = params.get('automated')
         now         = int(time.time())
 
-        if onlyOnIdle:
-            rawLastColorChange  = r.get(REDIS_COLOR_KEY)
-            lastColorChange     = int(rawLastColorChange) if rawLastColorChange else 0
+        rawLastColor    = r.get(REDIS_COLOR_KEY)
+        rawLastColor    = rawLastColor if rawLastColor else b'0,0'
 
-            secondUntilIdle = lastColorChange + SECONDS_TO_IDLE - now
+        (lastColourTimestamp, lastColour) = [int(x) for x in rawLastColor.split(',')]
+
+        if onlyOnIdle:
+            secondUntilIdle = lastColourTimestamp + SECONDS_TO_IDLE - now
 
             if secondUntilIdle > 0:
                 logging.info(f"Ignoring automated colour request, not idle for another {secondUntilIdle / 60} mins")
                 return
 
-        hue = random.randint(0, 255)
+        foundColor = False
+        while (not foundColor):
+            hue         = random.randint(0, 255)
+            foundColor  = abs(hue - lastColour) > COLOR_GAP
+
         sat = 255
         lum = 255
 
@@ -78,7 +85,7 @@ class randomColor:
 
         response = sendLedData(led_data)
 
-        r.set(REDIS_COLOR_KEY, now)
+        r.set(REDIS_COLOR_KEY, f'{now},{hue}')
 
         return response
 
@@ -112,7 +119,8 @@ class lights:
 
         response = sendLedData(led_data)
 
-        r.set(REDIS_COLOR_KEY, int(time.time()))
+        hue = led_data[0] if len(rawColors) == 1 else 0
+        r.set(REDIS_COLOR_KEY, f'{int(time.time())},{hue}')
 
         return response
 
