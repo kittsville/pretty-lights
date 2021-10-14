@@ -90,7 +90,7 @@ class lights:
         colors = list(map(colorTools.Color.fromDict, rawColors))
 
         if multiplier == 'columns':
-            led_data = colorTools.generateColoursFromColumns(colors, LED_COLUMNS)
+            led_data = colorTools.generateColorsFromColumns(colors, LED_COLUMNS)
         else:
             raise web.badrequest(f'Unknown multiplier "{multiplier}"')
 
