@@ -21,10 +21,15 @@ const convertColor = color => {
 }
 
 const sendColors = colors => {
+  const payload = {
+    multiplier : 'columns',
+    colors
+  }
+
   const url = `/lights`;
   fetch(url, {
     method  : 'POST',
-    body    : JSON.stringify(colors),
+    body    : JSON.stringify(payload),
     headers: {
       'Content-Type': 'application/json'
     }

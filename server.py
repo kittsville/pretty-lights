@@ -7,7 +7,7 @@ import random
 import socket
 import logging
 
-from helpers.colorTools import Color
+from helpers import colorTools
 
 UDP_IP          = '192.168.1.56'
 UDP_PORT        = 12345
@@ -79,29 +79,20 @@ class randomColor:
 
 class lights:
     def POST(self):
-        rawColors = json.loads(web.data())
+        inputData = json.loads(web.data())
+
+        multiplier  = inputData['multiplier']
+        rawColors   = inputData['colors']
 
         if len(rawColors) == 0:
             raise web.badrequest(f'No colors given')
-        elif len(rawColors) > len(LED_COLUMNS):
-            raise web.badrequest(f'Too many colours given, LED lights only have {len(LED_COLUMNS)} columns')
+
+        colors = list(map(colorTools.Color.fromDict, rawColors))
+
+        if multiplier == 'columns':
+            led_data = colorTools.generateColoursFromColumns(colors, LED_COLUMNS)
         else:
-            num_color_columns   = int(len(LED_COLUMNS) / len(rawColors))
-            remainder           = len(LED_COLUMNS) % len(rawColors)
-
-        led_data = []
-
-        for i, rawColor in enumerate(rawColors):
-            color = Color.fromDict(rawColor)
-
-            num_leds_in_color_column = sum(LED_COLUMNS[i + remainder:i + remainder + num_color_columns])
-
-            if i == 0:
-                num_leds_in_color_column += sum(LED_COLUMNS[i:i + remainder])
-
-            column_led_data = color.toList() * num_leds_in_color_column
-
-            led_data.extend(column_led_data)
+            raise web.badrequest(f'Unknown multiplier "{multiplier}"')
 
         response = sendLedData(led_data)
 
