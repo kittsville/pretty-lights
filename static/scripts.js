@@ -65,7 +65,7 @@ document.getElementById('random-multicolored-bars').addEventListener('click', ()
 
 document.querySelectorAll('button[colors]').forEach(button => {
   const colors      = button.getAttribute('colors').split(',').map(c => convertColor(chroma(c)));
-  const multiplier  = button.getAttribute('multiplier');
+  const multiplier  = button.getAttribute('multiplier') || 'columns';
 
   button.addEventListener('click', () => {
     sendColors(colors, multiplier);
