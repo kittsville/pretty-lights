@@ -91,8 +91,8 @@ class lights:
 
         if multiplier == 'columns':
             led_data = colorTools.generateLedColumns(colors, LED_COLUMNS)
-        elif multiplier.isdigit():
-            led_data = colorTools.generateLedBlocks(colors, LED_COLUMNS, int(multiplier))
+        elif isinstance(multiplier, int):
+            led_data = colorTools.generateLedBlocks(colors, LED_COLUMNS, multiplier)
         else:
             raise web.badrequest(f'Unknown multiplier "{multiplier}"')
 

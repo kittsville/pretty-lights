@@ -1,3 +1,5 @@
+const NUM_COLUMNS = 5;
+const NUM_LEDS    = 100;
 const white = chroma('white');
 const black = chroma('black');
 const statusBar = document.getElementById('status');
@@ -21,10 +23,7 @@ const convertColor = color => {
 }
 
 const sendColors = (colors, multiplier) => {
-  const payload = {
-    multiplier : multiplier ? multiplier : 'columns',
-    colors
-  }
+  const payload = {multiplier, colors}
 
   const url = `/lights`;
   fetch(url, {
@@ -38,13 +37,30 @@ const sendColors = (colors, multiplier) => {
     .catch(e => addStatus('Error: ' + e));
 }
 
-document.getElementById('custom-color').addEventListener('input', ev => sendColors([convertColor(chroma(ev.target.value))]));
+document.getElementById('custom-color').addEventListener(
+  'input',
+  ev => sendColors([convertColor(chroma(ev.target.value))])
+);
 
 document.getElementById('random').addEventListener('click', () => {
   const url = `/random`;
   fetch(url, { method : 'POST' })
     .then(response => addStatus(response.statusText))
     .catch(e => addStatus('Error: ' + e));
+});
+
+document.getElementById('random-multicolored').addEventListener('click', () => {
+  sendColors(
+    ColorTools.gradient(...ColorTools.randomPastels(2), NUM_COLUMNS).map(convertColor),
+    "columns"
+  );
+});
+
+document.getElementById('random-multicolored-bars').addEventListener('click', () => {
+  sendColors(
+    ColorTools.gradient(...ColorTools.randomPastels(2), NUM_LEDS).map(convertColor),
+    1
+  );
 });
 
 document.querySelectorAll('button[colors]').forEach(button => {
@@ -89,7 +105,7 @@ class ColorTools {
     const scale = chroma.scale([firstColor, secondColor]).mode('lab');
     const step = 1 / (numberOfParts - 1);
 
-    return Array.from({length: numberOfParts}, (_, i) => scale(step * i).hex());
+    return Array.from({length: numberOfParts}, (_, i) => scale(step * i));
   }
 
   static twoPartGradient(firstColor, secondColor, thirdColor, numberOfParts) {
@@ -127,6 +143,6 @@ class ColorTools {
       console.log(`Gave up generating distinctive colours after ${attempts} attempts`);
     }
 
-    return pastels.map(hue => `hsl(${hue},70%,80%)`);
+    return pastels.map(hue => `hsl(${hue},100%,50%)`);
   }
 }
