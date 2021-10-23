@@ -59,11 +59,8 @@ class randomColor:
                 logging.info(f"Ignoring automated colour request, not idle for another {secondUntilIdle / 60} mins")
                 return
 
-        foundColor = False
-        while (not foundColor):
-            hue         = random.randint(0, 255)
-            foundColor  = abs(hue - lastColour) > COLOR_GAP
-
+        randomHue = random.randint(COLOR_GAP, 255)
+        hue = (randomHue + state.lastHue) % 255
         sat = 255
         lum = 255
 
