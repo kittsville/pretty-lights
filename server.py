@@ -8,13 +8,13 @@ import socket
 import logging
 
 from helpers import colorTools
+from helpers.state import State
 
 UDP_IP          = '192.168.1.56'
 UDP_PORT        = 12345
 COLOR_GAP       = 40
 LED_COLUMNS     = [20, 21, 15, 16, 14, 14]
 SECONDS_TO_IDLE = 60 * 29
-REDIS_COLOR_KEY = 'pl:color'
 
 # State management
 cacheBust   = int(time.time())
@@ -50,13 +50,10 @@ class randomColor:
         onlyOnIdle  = params.get('automated')
         now         = int(time.time())
 
-        rawLastColor    = r.get(REDIS_COLOR_KEY)
-        rawLastColor    = rawLastColor if rawLastColor else b'0,0'
-
-        (lastColourTimestamp, lastColour) = [int(x) for x in rawLastColor.split(',')]
+        state = State.fromRedis(r)
 
         if onlyOnIdle:
-            secondUntilIdle = lastColourTimestamp + SECONDS_TO_IDLE - now
+            secondUntilIdle = state.lastModified + SECONDS_TO_IDLE - now
 
             if secondUntilIdle > 0:
                 logging.info(f"Ignoring automated colour request, not idle for another {secondUntilIdle / 60} mins")
@@ -74,7 +71,8 @@ class randomColor:
 
         response = sendLedData(led_data)
 
-        r.set(REDIS_COLOR_KEY, f'{now},{hue}')
+        newState = State(now, hue)
+        newState.save(r)
 
         return response
 
@@ -100,7 +98,8 @@ class lights:
         response = sendLedData(led_data)
 
         hue = led_data[0] if len(rawColors) == 1 else 0
-        r.set(REDIS_COLOR_KEY, f'{int(time.time())},{hue}')
+        lastModified = int(time.time())
+        newState = State(lastModified, hue)
 
         return response
 
