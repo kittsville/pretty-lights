@@ -94,9 +94,10 @@ class lights:
 
         response = sendLedData(led_data)
 
-        hue = led_data[0] if len(rawColors) == 1 else 0
-        lastModified = int(time.time())
-        newState = State(lastModified, hue)
+        hue             = led_data[0] if len(rawColors) == 1 else 0
+        lastModified    = int(time.time())
+        newState        = State(lastModified, hue)
+        newState.save(r)
 
         return response
 
