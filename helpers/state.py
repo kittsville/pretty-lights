@@ -3,7 +3,7 @@ import json
 class State:
     @staticmethod
     def fromRedis(r):
-        rawState = r.get('pl:color')
+        rawState = r.get('pl:state')
 
         if rawState:
             state = json.loads(rawState)
@@ -26,4 +26,4 @@ class State:
             'lastHue'       : self.lastHue
         }
         rawState = json.dumps(state)
-        r.set('pl:color', rawState)
+        r.set('pl:state', rawState)
