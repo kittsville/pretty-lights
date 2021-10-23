@@ -40,25 +40,25 @@ def generateLedColumns(colors):
     else:
         num_color_columns = int(len(LED_COLUMNS) / len(colors))
         remainder = len(LED_COLUMNS) % len(colors)
-    led_data = []
+    ledData = []
     for i, color in enumerate(colors):
         num_leds_in_color_column = sum(LED_COLUMNS[i + remainder:i + remainder + num_color_columns])
         if i == 0:
             num_leds_in_color_column += sum(LED_COLUMNS[i:i + remainder])
-        column_led_data = color.toList() * num_leds_in_color_column
-        led_data.extend(column_led_data)
+        column_ledData = color.toList() * num_leds_in_color_column
+        ledData.extend(column_ledData)
 
-    return led_data
+    return ledData
 
 
 def generateLedBlocks(colors, multiplier):
     if len(colors) * multiplier > NUM_LEDS:
         raise web.badrequest(f"Multiplier {multiplier} and given colors {len(colors)} greater than number of LEDs {NUM_LEDS}")
-    led_data = []
-    while len(led_data) < NUM_LEDS * 3:
+    ledData = []
+    while len(ledData) < NUM_LEDS * 3:
         for color in colors:
-            color_block_led_data = color.toList() * multiplier
-            led_data.extend(color_block_led_data)
+            color_block_ledData = color.toList() * multiplier
+            ledData.extend(color_block_ledData)
 
-    led_data[0:(NUM_LEDS - 1) * 3]
-    return led_data
+    ledData[0:(NUM_LEDS - 1) * 3]
+    return ledData

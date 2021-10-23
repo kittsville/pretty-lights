@@ -53,9 +53,9 @@ class randomColor:
         sat = 255
         lum = 255
 
-        led_data = [hue, sat, lum] * 100
+        ledData = [hue, sat, lum] * 100
 
-        response = microcontroller.sendLedData(led_data)
+        response = microcontroller.sendLedData(ledData)
 
         newState = State(now, hue)
         newState.save(r)
@@ -75,15 +75,15 @@ class lights:
         colors = list(map(colorTools.Color.fromDict, rawColors))
 
         if multiplier == 'columns':
-            led_data = colorTools.generateLedColumns(colors)
+            ledData = colorTools.generateLedColumns(colors)
         elif isinstance(multiplier, int):
-            led_data = colorTools.generateLedBlocks(colors, multiplier)
+            ledData = colorTools.generateLedBlocks(colors, multiplier)
         else:
             raise web.badrequest(f'Unknown multiplier "{multiplier}"')
 
-        response = microcontroller.sendLedData(led_data)
+        response = microcontroller.sendLedData(ledData)
 
-        hue             = led_data[0] if len(rawColors) == 1 else 0
+        hue             = ledData[0] if len(rawColors) == 1 else 0
         lastModified    = int(time.time())
         newState        = State(lastModified, hue)
         newState.save(r)
