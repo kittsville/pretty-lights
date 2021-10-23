@@ -4,16 +4,13 @@ import json
 import time
 import redis
 import random
-import socket
 import logging
 
 from helpers import colorTools
+from helpers import microcontroller
 from helpers.state import State
 
-UDP_IP          = '192.168.1.56'
-UDP_PORT        = 12345
 COLOR_GAP       = 40
-LED_COLUMNS     = [20, 21, 15, 16, 14, 14]
 SECONDS_TO_IDLE = 60 * 29
 
 # State management
@@ -30,14 +27,6 @@ urls = (
 )
 render = web.template.render('templates/')
 app = web.application(urls, globals())
-
-def sendLedData(led_data):
-    raw_led_data = bytes(led_data)
-
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.settimeout(2)
-    sock.sendto(raw_led_data, (UDP_IP, UDP_PORT))
-    return sock.recv(4)
 
 class homepage:
     def GET(self):
@@ -66,7 +55,7 @@ class randomColor:
 
         led_data = [hue, sat, lum] * 100
 
-        response = sendLedData(led_data)
+        response = microcontroller.sendLedData(led_data)
 
         newState = State(now, hue)
         newState.save(r)
@@ -86,13 +75,13 @@ class lights:
         colors = list(map(colorTools.Color.fromDict, rawColors))
 
         if multiplier == 'columns':
-            led_data = colorTools.generateLedColumns(colors, LED_COLUMNS)
+            led_data = colorTools.generateLedColumns(colors)
         elif isinstance(multiplier, int):
-            led_data = colorTools.generateLedBlocks(colors, LED_COLUMNS, multiplier)
+            led_data = colorTools.generateLedBlocks(colors, multiplier)
         else:
             raise web.badrequest(f'Unknown multiplier "{multiplier}"')
 
-        response = sendLedData(led_data)
+        response = microcontroller.sendLedData(led_data)
 
         hue             = led_data[0] if len(rawColors) == 1 else 0
         lastModified    = int(time.time())

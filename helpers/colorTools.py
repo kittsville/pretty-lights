@@ -1,5 +1,7 @@
 import web
 
+from helpers.microcontroller import LED_COLUMNS, NUM_LEDS
+
 class Color:
 
     def __init__(self, hue, sat, lum):
@@ -32,31 +34,31 @@ def getValue(params, name):
     return value
 
 
-def generateLedColumns(colors, led_columns):
-    if len(colors) > len(led_columns):
-        raise web.badrequest(f"Too many colours given, LED lights only have {len(led_columns)} columns")
+def generateLedColumns(colors):
+    if len(colors) > len(LED_COLUMNS):
+        raise web.badrequest(f"Too many colours given, LED lights only have {len(LED_COLUMNS)} columns")
     else:
-        num_color_columns = int(len(led_columns) / len(colors))
-        remainder = len(led_columns) % len(colors)
+        num_color_columns = int(len(LED_COLUMNS) / len(colors))
+        remainder = len(LED_COLUMNS) % len(colors)
     led_data = []
     for i, color in enumerate(colors):
-        num_leds_in_color_column = sum(led_columns[i + remainder:i + remainder + num_color_columns])
+        num_leds_in_color_column = sum(LED_COLUMNS[i + remainder:i + remainder + num_color_columns])
         if i == 0:
-            num_leds_in_color_column += sum(led_columns[i:i + remainder])
+            num_leds_in_color_column += sum(LED_COLUMNS[i:i + remainder])
         column_led_data = color.toList() * num_leds_in_color_column
         led_data.extend(column_led_data)
 
     return led_data
 
 
-def generateLedBlocks(colors, led_columns, multiplier):
-    if len(colors) * multiplier > sum(led_columns):
-        raise web.badrequest(f"Multiplier {multiplier} and given colors {len(colors)} greater than number of LEDs {sum(led_columns)}")
+def generateLedBlocks(colors, multiplier):
+    if len(colors) * multiplier > NUM_LEDS:
+        raise web.badrequest(f"Multiplier {multiplier} and given colors {len(colors)} greater than number of LEDs {NUM_LEDS}")
     led_data = []
-    while len(led_data) < sum(led_columns) * 3:
+    while len(led_data) < NUM_LEDS * 3:
         for color in colors:
             color_block_led_data = color.toList() * multiplier
             led_data.extend(color_block_led_data)
 
-    led_data[0:(sum(led_columns) - 1) * 3]
+    led_data[0:(NUM_LEDS - 1) * 3]
     return led_data
