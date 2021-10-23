@@ -25,7 +25,7 @@ const convertColor = color => {
 const sendColors = (colors, multiplier) => {
   const payload = {multiplier, colors}
 
-  const url = `/lights`;
+  const url = `lights`;
   fetch(url, {
     method  : 'POST',
     body    : JSON.stringify(payload),
@@ -43,7 +43,7 @@ document.getElementById('custom-color').addEventListener(
 );
 
 document.getElementById('random').addEventListener('click', () => {
-  const url = `/random`;
+  const url = `random`;
   fetch(url, { method : 'POST' })
     .then(response => addStatus(response.statusText))
     .catch(e => addStatus('Error: ' + e));

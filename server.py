@@ -35,6 +35,7 @@ def sendLedData(led_data):
     raw_led_data = bytes(led_data)
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.settimeout(2)
     sock.sendto(raw_led_data, (UDP_IP, UDP_PORT))
     return sock.recv(4)
 
