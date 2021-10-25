@@ -10,20 +10,24 @@ class State:
 
             lastModified    = state['lastModified']
             lastHue         = state['lastHue']
+            isAnimation     = state['isAnimation']
         else:
             lastModified    = 0
             lastHue         = 0
+            isAnimation     = False
 
-        return State(lastModified, lastHue)
+        return State(lastModified, lastHue, isAnimation)
 
-    def __init__(self, lastModified, lastHue):
+    def __init__(self, lastModified, lastHue, isAnimation):
         self.lastModified   = lastModified
         self.lastHue        = lastHue
+        self.isAnimation    = isAnimation
 
     def save(self, r):
         state = {
             'lastModified'  : self.lastModified,
-            'lastHue'       : self.lastHue
+            'lastHue'       : self.lastHue,
+            'isAnimation'   : self.isAnimation
         }
         rawState = json.dumps(state)
         r.set('pl:state', rawState)

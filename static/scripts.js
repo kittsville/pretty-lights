@@ -75,6 +75,19 @@ document.querySelectorAll('button[colors]').forEach(button => {
   });
 });
 
+document.querySelectorAll('button[animation]').forEach(button => {
+  button.addEventListener('click', () => {
+    const name  = button.getAttribute('animation');
+    const url   = `animations/${name}`;
+
+    fetch(url, { method  : 'POST' })
+      .then(response => addStatus(response.statusText))
+      .catch(e => addStatus('Error: ' + e));
+
+    button.blur();
+  });
+});
+
 const colorButtons = async function() {
   document.querySelectorAll('button[colors]').forEach(button => {
     const colors = button.getAttribute('colors').split(',').map(c => chroma(c));

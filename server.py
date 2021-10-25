@@ -6,9 +6,12 @@ import redis
 import random
 import logging
 
-from helpers import colorTools
-from helpers import microcontroller
+import animator
+
+from helpers import colorTools, microcontroller, animations
 from helpers.state import State
+
+from multiprocessing.connection import Client
 
 COLOR_GAP       = 40
 SECONDS_TO_IDLE = 60 * 29
@@ -23,6 +26,7 @@ logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
 urls = (
     '/', 'homepage',
     '/lights', 'lights',
+    '/animations/(.+)', 'animation',
     '/random', 'randomColor'
 )
 render = web.template.render('templates/')
@@ -55,9 +59,12 @@ class randomColor:
 
         ledData = [hue, sat, lum] * 100
 
+        if state.isAnimation:
+            animator.send('__sleep')
         response = microcontroller.sendLedData(ledData)
 
-        newState = State(now, hue)
+        isAnimation = False
+        newState    = State(now, hue, isAnimation)
         newState.save(r)
 
         return response
@@ -70,7 +77,7 @@ class lights:
         rawColors   = inputData['colors']
 
         if len(rawColors) == 0:
-            raise web.badrequest(f'No colors given')
+            raise web.badrequest('No colors given')
 
         colors = list(map(colorTools.Color.fromDict, rawColors))
 
@@ -81,14 +88,33 @@ class lights:
         else:
             raise web.badrequest(f'Unknown multiplier "{multiplier}"')
 
+        oldState = State.fromRedis(r)
+        if oldState.isAnimation:
+            animator.send('__sleep')
+
         response = microcontroller.sendLedData(ledData)
 
         hue             = ledData[0] if len(rawColors) == 1 else 0
         lastModified    = int(time.time())
-        newState        = State(lastModified, hue)
+        isAnimation     = False
+        newState        = State(lastModified, hue, isAnimation)
         newState.save(r)
 
         return response
+
+class animation:
+    def POST(self, name):
+        if not name in animations.animations:
+            animationNames = ", ".join(animations.animations.keys())
+            raise web.badrequest(f'No animation found with name "{name}". Available: {animationNames}')
+
+        animator.send(name)
+
+        hue             = 0
+        lastModified    = int(time.time())
+        isAnimation     = True
+        newState        = State(lastModified, hue, isAnimation)
+        newState.save(r)
 
 if __name__ == "__main__":
     app.run()
