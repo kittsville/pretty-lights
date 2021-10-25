@@ -1,6 +1,7 @@
 import sys
 import time
 import math
+import socket
 import logging
 import multiprocessing as mp
 
@@ -40,7 +41,10 @@ def animationLoop(q):
 
                 i += 1
 
-        microcontroller.sendLedData(ledData)
+        try:
+            microcontroller.sendLedData(ledData)
+        except socket.TimeoutError:
+            pass
         time.sleep(1 / animationClass.fps) # TODO: Scale based on time left
 
 def send(msg):
