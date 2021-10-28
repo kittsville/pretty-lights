@@ -30,19 +30,19 @@ def animationLoop(q):
                 animationClass = animations.animations[msg]()
 
         t       = time.time()
-        ledData = []
+        colors  = []
 
         i = 0
 
         for c, columnLength in enumerate(microcontroller.LED_COLUMNS):
             for y in range(columnLength):
                 relativeY = y if c % 2 == 0 else columnLength - y
-                ledData.extend(animationClass.generateLed(t, i, c, relativeY))
+                colors.append(animationClass.generateColor(t, i, c, relativeY))
 
                 i += 1
 
         try:
-            microcontroller.fireAndForgetLedData(ledData)
+            microcontroller.fireAndForgetColors(colors)
         except socket.timeout:
             pass
         time.sleep(1 / animationClass.fps) # TODO: Scale based on time left

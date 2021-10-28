@@ -95,7 +95,7 @@ def generateColorGradient(firstColor, secondColor, numElements):
     satGradient = generateGradient(firstColor.sat, secondColor.sat, numElements)
     lumGradient = generateGradient(firstColor.lum, secondColor.lum, numElements)
 
-    colorGradient = map(Color.fromList, zip(hueGradient, satGradient, lumGradient))
+    colorGradient = list(map(Color.fromList, zip(hueGradient, satGradient, lumGradient)))
 
     return colorGradient
 
@@ -103,11 +103,11 @@ def generateGradientColumns(firstColor, secondColor):
     numElements = len(LED_COLUMNS)
     gradient    = generateColorGradient(firstColor, secondColor, numElements)
 
-    led_data = []
+    colors = []
 
     for i, color in enumerate(gradient):
-        column_ledData = color.toList() * LED_COLUMNS[i]
+        column_colors = [color] * LED_COLUMNS[i]
 
-        led_data.extend(column_ledData)
+        colors.extend(column_colors)
 
-    return led_data
+    return colors

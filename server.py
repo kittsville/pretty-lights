@@ -54,24 +54,23 @@ class randomColor:
         color   = colorTools.Color.fromHue(hue)
 
         if type == 'single':
-            ledData = color.toList() * 100
+            colors = [color] * 100
         elif type == 'columns':
             secondHue   = colorTools.generateRandomHue(hue)
             secondColor = colorTools.Color.fromHue(secondHue)
-
-            ledData = colorTools.generateGradientColumns(color, secondColor)
+            colors      = colorTools.generateGradientColumns(color, secondColor)
         elif type == 'gradient':
             secondHue   = colorTools.generateRandomHue(hue)
             secondColor = colorTools.Color.fromHue(secondHue)
             steps       = microcontroller.NUM_LEDS
             colors      = colorTools.generateColorGradient(color, secondColor, steps)
-            ledData     = functools.reduce(list.__add__, (c.toList() for c in colors))
         else:
             raise web.badrequest(f'Unknown type of random display, given "{type}"')
 
         if state.isAnimation:
             animator.send('__sleep')
-        response = microcontroller.sendLedData(ledData)
+
+        response = microcontroller.sendColors(colors)
 
         isAnimation = False
         newState    = State(now, hue, isAnimation)

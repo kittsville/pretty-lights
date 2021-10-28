@@ -9,16 +9,20 @@ MIN_LUM     = 36
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.settimeout(2)
 
-def fireAndForgetLedData(ledData):
-    expectedBytes = NUM_LEDS * 3
-    if len(ledData) != expectedBytes:
-        raise ValueError(f'Expected {expectedBytes} bytes, got {len(ledData)}')
+def fireAndForgetColors(colors):
+    if len(colors) != NUM_LEDS:
+        raise ValueError(f'Given {len(colors)} colors, LED strip has {NUM_LEDS} LEDs')
+
+    ledData = []
+
+    for color in colors:
+        ledData.extend(color.toList())
 
     rawLedData = bytes(ledData)
 
     sock.sendto(rawLedData, (UDP_IP, UDP_PORT))
 
-def sendLedData(ledData):
-    fireAndForgetLedData(ledData)
+def sendColors(colors):
+    fireAndForgetColors(colors)
 
     return sock.recv(4)
