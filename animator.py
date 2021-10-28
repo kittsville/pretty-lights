@@ -42,8 +42,8 @@ def animationLoop(q):
                 i += 1
 
         try:
-            microcontroller.sendLedData(ledData)
-        except socket.TimeoutError:
+            microcontroller.fireAndForgetLedData(ledData)
+        except socket.timeout:
             pass
         time.sleep(1 / animationClass.fps) # TODO: Scale based on time left
 

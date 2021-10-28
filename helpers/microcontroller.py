@@ -7,15 +7,18 @@ UDP_PORT    = 12345
 MIN_LUM     = 36
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.settimeout(2)
 
-def sendLedData(ledData):
+def fireAndForgetLedData(ledData):
     expectedBytes = NUM_LEDS * 3
     if len(ledData) != expectedBytes:
         raise ValueError(f'Expected {expectedBytes} bytes, got {len(ledData)}')
 
     rawLedData = bytes(ledData)
 
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.settimeout(2)
     sock.sendto(rawLedData, (UDP_IP, UDP_PORT))
+
+def sendLedData(ledData):
+    fireAndForgetLedData(ledData)
+
     return sock.recv(4)
