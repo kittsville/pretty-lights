@@ -64,28 +64,30 @@ def generateLedColumns(colors):
     else:
         num_color_columns = int(len(LED_COLUMNS) / len(colors))
         remainder = len(LED_COLUMNS) % len(colors)
-    ledData = []
+    ledColors = []
+
     for i, color in enumerate(colors):
         num_leds_in_color_column = sum(LED_COLUMNS[i + remainder:i + remainder + num_color_columns])
         if i == 0:
             num_leds_in_color_column += sum(LED_COLUMNS[i:i + remainder])
-        column_ledData = color.toList() * num_leds_in_color_column
-        ledData.extend(column_ledData)
+        columnColors = [color] * num_leds_in_color_column
+        ledColors.extend(columnColors)
 
-    return ledData
+    return ledColors
 
 
 def generateLedBlocks(colors, multiplier):
     if len(colors) * multiplier > NUM_LEDS:
         raise web.badrequest(f"Multiplier {multiplier} and given colors {len(colors)} greater than number of LEDs {NUM_LEDS}")
-    ledData = []
-    while len(ledData) < NUM_LEDS * 3:
+    ledColors = []
+    while len(ledColors) < NUM_LEDS:
         for color in colors:
-            color_block_ledData = color.toList() * multiplier
-            ledData.extend(color_block_ledData)
+            ledColorBlock = [color] * multiplier
+            ledColors.extend(ledColorBlock)
 
-    ledData[0:(NUM_LEDS - 1) * 3]
-    return ledData
+    ledColors = ledColors[0:NUM_LEDS]
+
+    return ledColors
 
 def generateGradient(firstNum, secondNum, numElements):
     return map(int, np.linspace(firstNum, secondNum, numElements))

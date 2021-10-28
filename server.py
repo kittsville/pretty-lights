@@ -91,9 +91,9 @@ class lights:
         colors = list(map(colorTools.Color.fromDict, rawColors))
 
         if multiplier == 'columns':
-            ledData = colorTools.generateLedColumns(colors)
+            ledColors = colorTools.generateLedColumns(colors)
         elif isinstance(multiplier, int):
-            ledData = colorTools.generateLedBlocks(colors, multiplier)
+            ledColors = colorTools.generateLedBlocks(colors, multiplier)
         else:
             raise web.badrequest(f'Unknown multiplier "{multiplier}"')
 
@@ -101,9 +101,9 @@ class lights:
         if oldState.isAnimation:
             animator.send('__sleep')
 
-        response = microcontroller.sendLedData(ledData)
+        response = microcontroller.sendColors(ledColors)
 
-        hue             = ledData[0] if len(rawColors) == 1 else 0
+        hue             = ledColors[0].hue if len(rawColors) == 1 else 0
         lastModified    = int(time.time())
         isAnimation     = False
         newState        = State(lastModified, hue, isAnimation)
