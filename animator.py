@@ -12,22 +12,24 @@ def animationLoop(q):
 
     # Uncomment for testing animations
     sleep = False
-    animationClass = animations.HeartBeat()
+    animationClass = animations.Rampant()
+
+    logger = logging.getLogger()
 
     while True:
         if not q.empty() or sleep: # TODO: Only check every 1/2 second
             msg = q.get() # TODO: get() second time to freeze if given Sleep command
-            print(f'Recieved message "{msg}"')
+            logging.info(f'Recieved message "{msg}"')
 
             if msg == '__sleep':
-                print('Sleeping animation loop...')
+                logging.info('Sleeping animation loop...')
                 sleep = True
                 continue
             else:
                 if sleep:
-                    print('Waking animation loop...')
+                    logging.info('Waking animation loop...')
                     sleep = False
-                print(f'Updating animation to "{msg}"')
+                logging.info(f'Updating animation to "{msg}"')
                 animationClass = animations.animations[msg]()
 
         t       = time.time()
@@ -60,15 +62,21 @@ if __name__ == '__main__':
     p       = mp.Process(target=animationLoop, args=(q,))
     p.start()
 
+    logging.basicConfig(format='[%(process)s] %(levelname)s: %(message)s', level=logging.INFO)
+
+    # logger = logging.getLogger()
+    #
+    # logger.basicConfig(format='[%(process)s] %(levelname)s: %(message)s', level=logging.INFO)
+
     with mp.connection.Listener(address) as listener:
-        print("Listening for connections...")
+        logging.info("Listening for connections...")
 
         while True:
             with listener.accept() as conn:
-                print('Connection accepted from', listener.last_accepted)
+                logging.info(f'Connection accepted from {listener.last_accepted}')
                 msg = conn.recv()
 
-                print(f'Recieved message "{msg}", sending to animation loop')
+                logging.info(f'Recieved message "{msg}", sending to animation loop')
                 q.put(msg)
                 conn.close()
                 connectionAlive = False

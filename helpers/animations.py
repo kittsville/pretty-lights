@@ -12,14 +12,40 @@ class Animation:
         value = 255 if t % 2 == 0 else 0
         return Color(value, value, value)
 
-class HeartBeat(Animation):
-    name = 'heartbeat'
+class Breathing(Animation):
+    name        = 'breathing'
+    lumRange    = 255 - microcontroller.MIN_LUM
 
     def generateColor(self, t, i, c, y):
-        intensity = (math.sin(t * 2) + 1) / 2
-        lum_range = 255 - microcontroller.MIN_LUM
+        intensity   = (math.sin(t * 2) + 1) / 2
+        lum         = int(intensity * Breathing.lumRange) + microcontroller.MIN_LUM
 
-        return Color(255, 255, int(intensity * lum_range) + microcontroller.MIN_LUM)
+        return Color(255, 255, lum)
+
+class Rampant(Animation):
+    name        = 'rampant'
+    lumRange    = 255 - microcontroller.MIN_LUM
+
+    @staticmethod
+    def trapezoidalWave(xin, width=1., slope=1.):
+        x = xin % (4 * width)
+        if (x <= width):
+            # Ascending line
+            return x * slope;
+        elif (x <= 2 * width):
+            # Top horizontal line
+            return width * slope
+        elif (x <= 3 * width):
+            # Descending line
+            return 3 * width * slope - x * slope
+        elif (x <= 4 * width):
+            # Bottom horizontal line
+            return 0.
+
+    def generateColor(self, t, i, c, y):
+        lum = int(Rampant.trapezoidalWave(t) * Rampant.lumRange) + microcontroller.MIN_LUM
+
+        return Color(255, 255, lum)
 
 class ColorRotation(Animation):
     name = 'color-rotation'
