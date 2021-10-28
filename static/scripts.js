@@ -1,5 +1,3 @@
-const NUM_COLUMNS = 5;
-const NUM_LEDS    = 100;
 const white = chroma('white');
 const black = chroma('black');
 const statusBar = document.getElementById('status');
@@ -43,24 +41,24 @@ document.getElementById('custom-color').addEventListener(
 );
 
 document.getElementById('random').addEventListener('click', () => {
-  const url = `random`;
+  const url = `random/single`;
   fetch(url, { method : 'POST' })
     .then(response => addStatus(response.statusText))
     .catch(e => addStatus('Error: ' + e));
 });
 
 document.getElementById('random-multicolored').addEventListener('click', () => {
-  sendColors(
-    ColorTools.gradient(...ColorTools.randomPastels(2), NUM_LEDS).map(convertColor),
-    "columns"
-  );
+  const url = `random/gradient`;
+  fetch(url, { method : 'POST' })
+    .then(response => addStatus(response.statusText))
+    .catch(e => addStatus('Error: ' + e));
 });
 
 document.getElementById('random-multicolored-bars').addEventListener('click', () => {
-  sendColors(
-    ColorTools.gradient(...ColorTools.randomPastels(2), NUM_COLUMNS).map(convertColor),
-    1
-  );
+  const url = `random/columns`;
+  fetch(url, { method : 'POST' })
+    .then(response => addStatus(response.statusText))
+    .catch(e => addStatus('Error: ' + e));
 });
 
 document.querySelectorAll('button[colors]').forEach(button => {

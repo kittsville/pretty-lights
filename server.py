@@ -3,8 +3,8 @@ import web
 import json
 import time
 import redis
-import random
 import logging
+import functools
 
 import animator
 
@@ -13,7 +13,6 @@ from helpers.state import State
 
 from multiprocessing.connection import Client
 
-COLOR_GAP       = 40
 SECONDS_TO_IDLE = 60 * 29
 
 # State management
@@ -27,7 +26,7 @@ urls = (
     '/', 'homepage',
     '/lights', 'lights',
     '/animations/(.+)', 'animation',
-    '/random', 'randomColor'
+    '/random/(.+)', 'randomColor'
 )
 render = web.template.render('templates/')
 app = web.application(urls, globals())
@@ -37,9 +36,8 @@ class homepage:
         return render.homepage(cacheBust)
 
 class randomColor:
-    def POST(self):
-        params = web.input()
-
+    def POST(self, type):
+        params      = web.input()
         onlyOnIdle  = params.get('automated')
         now         = int(time.time())
 
@@ -52,12 +50,24 @@ class randomColor:
                 logging.info(f"Ignoring automated colour request, not idle for another {secondUntilIdle / 60} mins")
                 return
 
-        randomHue = random.randint(COLOR_GAP, 255)
-        hue = (randomHue + state.lastHue) % 255
-        sat = 255
-        lum = 255
+        hue     = colorTools.generateRandomHue(state.lastHue)
+        color   = colorTools.Color.fromHue(hue)
 
-        ledData = [hue, sat, lum] * 100
+        if type == 'single':
+            ledData = color.toList() * 100
+        elif type == 'columns':
+            secondHue   = colorTools.generateRandomHue(hue)
+            secondColor = colorTools.Color.fromHue(secondHue)
+
+            ledData = colorTools.generateGradientColumns(color, secondColor)
+        elif type == 'gradient':
+            secondHue   = colorTools.generateRandomHue(hue)
+            secondColor = colorTools.Color.fromHue(secondHue)
+            steps       = microcontroller.NUM_LEDS
+            colors      = colorTools.generateColorGradient(color, secondColor, steps)
+            ledData     = functools.reduce(list.__add__, (c.toList() for c in colors))
+        else:
+            raise web.badrequest(f'Unknown type of random display, given "{type}"')
 
         if state.isAnimation:
             animator.send('__sleep')

@@ -10,9 +10,9 @@ from helpers import microcontroller, animations
 def animationLoop(q):
     sleep = True
 
-    # # Uncomment for testing animations
-    # sleep = False
-    # animationClass = animations.HeartBeat()
+    # Uncomment for testing animations
+    sleep = False
+    animationClass = animations.HeartBeat()
 
     while True:
         if not q.empty() or sleep: # TODO: Only check every 1/2 second
