@@ -1,4 +1,5 @@
 import math
+import random
 
 from helpers import microcontroller
 from helpers.colorTools import Color
@@ -34,27 +35,19 @@ class Rainbow(Animation):
         hue = int(((t * 50) + (i * 10)) % 255)
         return Color.fromHue(hue)
 
-class Rainfall(Animation):
-    name = 'rainfall'
+class Ripples(Animation):
+    name = 'ripples'
+
+    def __init__(self):
+        self.hue = random.randint(0, 255)
 
     def generateColor(self, t, i, c, y):
         intensity = (math.sin(t * 3 - y) + 1) / 2
         lum_range = 255 - microcontroller.MIN_LUM
 
-        hue = 160
         sat = 255
         lum = int(intensity * lum_range) + microcontroller.MIN_LUM
 
-        return Color(hue, sat, lum)
-
-# This is broken
-class RainbowColumns(Animation):
-    name = 'rainbow-columns'
-
-    def generateColor(self, t, i, c, y):
-        hueRange    = max(microcontroller.LED_COLUMNS)
-        hue         = int(y + t * 4 % (hueRange + 1) / hueRange * 255)
-
-        return Color.fromHue(hue)
+        return Color(self.hue, sat, lum)
 
 animations = {animation.name: animation for animation in Animation.__subclasses__()}
