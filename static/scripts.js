@@ -51,14 +51,14 @@ document.getElementById('random').addEventListener('click', () => {
 
 document.getElementById('random-multicolored').addEventListener('click', () => {
   sendColors(
-    ColorTools.gradient(...ColorTools.randomPastels(2), NUM_COLUMNS).map(convertColor),
+    ColorTools.gradient(...ColorTools.randomPastels(2), NUM_LEDS).map(convertColor),
     "columns"
   );
 });
 
 document.getElementById('random-multicolored-bars').addEventListener('click', () => {
   sendColors(
-    ColorTools.gradient(...ColorTools.randomPastels(2), NUM_LEDS).map(convertColor),
+    ColorTools.gradient(...ColorTools.randomPastels(2), NUM_COLUMNS).map(convertColor),
     1
   );
 });
