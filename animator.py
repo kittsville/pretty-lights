@@ -24,8 +24,9 @@ def animationLoop(q):
                 sleep = True
                 continue
             else:
-                print('Waking animation loop...')
-                sleep = False
+                if sleep:
+                    print('Waking animation loop...')
+                    sleep = False
                 print(f'Updating animation to "{msg}"')
                 animationClass = animations.animations[msg]()
 
@@ -52,7 +53,6 @@ def send(msg):
 
     with mp.connection.Client(address) as conn:
         conn.send(msg)
-        conn.send('__goodbye')
 
 if __name__ == '__main__':
     address = ('localhost', 6000)
@@ -65,18 +65,10 @@ if __name__ == '__main__':
 
         while True:
             with listener.accept() as conn:
-                connectionAlive = True
-
                 print('Connection accepted from', listener.last_accepted)
-                while connectionAlive:
-                    msg = conn.recv()
+                msg = conn.recv()
 
-                    print(f'Recieved message "{msg}"')
-
-                    if msg == '__goodbye':
-                        print("Closing connection...")
-                        conn.close()
-                        connectionAlive = False
-                    else:
-                        print(f'Sending "{msg}" to animation loop')
-                        q.put(msg)
+                print(f'Recieved message "{msg}", sending to animation loop')
+                q.put(msg)
+                conn.close()
+                connectionAlive = False
