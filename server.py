@@ -74,8 +74,7 @@ class randomColor:
         else:
             raise web.badrequest(f'Unknown type of random display, given "{type}"')
 
-        if state.animation:
-            animator.send('__sleep')
+        animator.send('__sleep')
 
         response = microcontroller.sendColors(colors)
 
@@ -106,8 +105,7 @@ class lights:
             raise web.badrequest(f'Unknown multiplier "{multiplier}"')
 
         oldState = State.fromRedis(r)
-        if oldState.animation:
-            animator.send('__sleep')
+        animator.send('__sleep')
 
         response = microcontroller.sendColors(ledColors)
 

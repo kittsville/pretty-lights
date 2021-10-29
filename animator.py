@@ -10,9 +10,9 @@ from helpers import microcontroller, animations
 def animationLoop(q):
     sleep = True
 
-    # Uncomment for testing animations
-    sleep = False
-    animationClass = animations.Rampant()
+    # # Uncomment for testing animations
+    # sleep = False
+    # animationClass = animations.Rampant()
 
     logger = logging.getLogger()
 
