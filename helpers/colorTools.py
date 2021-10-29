@@ -14,8 +14,14 @@ class Color:
         self.lum = lum
 
     def toList(self):
-        return [
-         self.hue, self.sat, self.lum]
+        return [self.hue, self.sat, self.lum]
+
+    def toDict(self):
+        return {
+            'hue'   : self.hue,
+            'sat'   : self.sat,
+            'lum'   : self.lum
+        }
 
     @staticmethod
     def fromDict(params):
@@ -51,11 +57,14 @@ def getValue(params, name):
         raise web.badrequest(f"{name} should be 0 <= x <= 255, given {value}")
     return value
 
-def generateRandomHue(avoidHue):
+def generateRandomDifferentHue(avoidHue):
     randomHue = random.randint(COLOR_GAP, 255)
     hue = (randomHue + avoidHue) % 255
 
     return hue
+
+def generateRandomHue():
+    return random.randint(0, 255)
 
 
 def generateLedColumns(colors):

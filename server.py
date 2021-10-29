@@ -9,7 +9,7 @@ import functools
 import animator
 
 from helpers import colorTools, microcontroller, animations
-from helpers.state import State
+from helpers.state import State, Multiplier
 
 from multiprocessing.connection import Client
 
@@ -26,7 +26,8 @@ urls = (
     '/', 'homepage',
     '/lights', 'lights',
     '/animations/(.+)', 'animation',
-    '/random/(.+)', 'randomColor'
+    '/random/(.+)', 'randomColor',
+    '/state', 'ledState'
 )
 render = web.template.render('templates/')
 app = web.application(urls, globals())
@@ -50,30 +51,34 @@ class randomColor:
                 logging.info(f"Ignoring automated colour request, not idle for another {secondUntilIdle / 60} mins")
                 return
 
-        hue     = colorTools.generateRandomHue(state.lastHue)
+        hue     = colorTools.generateRandomDifferentHue(state.colors[0].hue) if len(state.colors) > 0 else colorTools.generateRandomHue()
         color   = colorTools.Color.fromHue(hue)
 
         if type == 'single':
             colors = [color] * 100
+
+            newState = State(now, [color], Multiplier.SINGLE_COLOR)
         elif type == 'columns':
-            secondHue   = colorTools.generateRandomHue(hue)
+            secondHue   = colorTools.generateRandomDifferentHue(hue)
             secondColor = colorTools.Color.fromHue(secondHue)
             colors      = colorTools.generateGradientColumns(color, secondColor)
+
+            newState = State(now, [color, secondColor], Multiplier.COLUMNS_GRADIENT)
         elif type == 'gradient':
-            secondHue   = colorTools.generateRandomHue(hue)
+            secondHue   = colorTools.generateRandomDifferentHue(hue)
             secondColor = colorTools.Color.fromHue(secondHue)
             steps       = microcontroller.NUM_LEDS
             colors      = colorTools.generateColorGradient(color, secondColor, steps)
+
+            newState = State(now, [color, secondColor], Multiplier.GRADIENT)
         else:
             raise web.badrequest(f'Unknown type of random display, given "{type}"')
 
-        if state.isAnimation:
+        if state.animation:
             animator.send('__sleep')
 
         response = microcontroller.sendColors(colors)
 
-        isAnimation = False
-        newState    = State(now, hue, isAnimation)
         newState.save(r)
 
         return response
@@ -88,25 +93,24 @@ class lights:
         if len(rawColors) == 0:
             raise web.badrequest('No colors given')
 
-        colors = list(map(colorTools.Color.fromDict, rawColors))
+        colors  = list(map(colorTools.Color.fromDict, rawColors))
+        now     = int(time.time())
 
         if multiplier == 'columns':
-            ledColors = colorTools.generateLedColumns(colors)
+            ledColors   = colorTools.generateLedColumns(colors)
+            newState    = State(now, colors, Multiplier.COLUMNS)
         elif isinstance(multiplier, int):
-            ledColors = colorTools.generateLedBlocks(colors, multiplier)
+            ledColors   = colorTools.generateLedBlocks(colors, multiplier)
+            newState    = State(now, colors, Multiplier.REPEATING)
         else:
             raise web.badrequest(f'Unknown multiplier "{multiplier}"')
 
         oldState = State.fromRedis(r)
-        if oldState.isAnimation:
+        if oldState.animation:
             animator.send('__sleep')
 
         response = microcontroller.sendColors(ledColors)
 
-        hue             = ledColors[0].hue if len(rawColors) == 1 else 0
-        lastModified    = int(time.time())
-        isAnimation     = False
-        newState        = State(lastModified, hue, isAnimation)
         newState.save(r)
 
         return response
@@ -119,11 +123,14 @@ class animation:
 
         animator.send(name)
 
-        hue             = 0
         lastModified    = int(time.time())
-        isAnimation     = True
-        newState        = State(lastModified, hue, isAnimation)
+        newState        = State(lastModified, [], Multiplier.NONE, name)
         newState.save(r)
+
+class ledState:
+    def GET(self):
+        # Blah blah blah API boundaries
+        return r.get('pl:state')
 
 if __name__ == "__main__":
     app.run()

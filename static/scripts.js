@@ -1,6 +1,7 @@
 const white = chroma('white');
 const black = chroma('black');
 const statusBar = document.getElementById('status');
+const state     = document.getElementById('state');
 const addStatus = statusText => {
   const status = document.createElement('em');
   status.textContent = statusText;
@@ -31,7 +32,13 @@ const sendColors = (colors, multiplier) => {
       'Content-Type': 'application/json'
     }
   })
-    .then(response => addStatus(response.statusText))
+    .then(response => {
+      addStatus(response.statusText);
+
+      if (response.ok) {
+        updateState();
+      }
+    })
     .catch(e => addStatus('Error: ' + e));
 }
 
@@ -43,21 +50,39 @@ document.getElementById('custom-color').addEventListener(
 document.getElementById('random').addEventListener('click', () => {
   const url = `random/single`;
   fetch(url, { method : 'POST' })
-    .then(response => addStatus(response.statusText))
+    .then(response => {
+      addStatus(response.statusText)
+
+      if (response.ok) {
+        updateState();
+      }
+    })
     .catch(e => addStatus('Error: ' + e));
 });
 
 document.getElementById('random-multicolored').addEventListener('click', () => {
   const url = `random/gradient`;
   fetch(url, { method : 'POST' })
-    .then(response => addStatus(response.statusText))
+    .then(response => {
+      addStatus(response.statusText)
+
+      if (response.ok) {
+        updateState();
+      }
+    })
     .catch(e => addStatus('Error: ' + e));
 });
 
 document.getElementById('random-multicolored-bars').addEventListener('click', () => {
   const url = `random/columns`;
   fetch(url, { method : 'POST' })
-    .then(response => addStatus(response.statusText))
+    .then(response => {
+      addStatus(response.statusText)
+
+      if (response.ok) {
+        updateState();
+      }
+    })
     .catch(e => addStatus('Error: ' + e));
 });
 
@@ -79,7 +104,13 @@ document.querySelectorAll('button[animation]').forEach(button => {
     const url   = `animations/${name}`;
 
     fetch(url, { method  : 'POST' })
-      .then(response => addStatus(response.statusText))
+      .then(response => {
+        addStatus(response.statusText);
+
+        if (response.ok) {
+          updateState();
+        }
+      })
       .catch(e => addStatus('Error: ' + e));
 
     button.blur();
@@ -102,6 +133,28 @@ const colorButtons = async function() {
 }
 
 colorButtons();
+
+const updateState = async function() {
+  fetch('state')
+  .then(response => response.json())
+  .then(data => {
+    const lastModified  = new Date(data['lastModified'] * 1000);
+    const colors        = data['colors'].map(c => `(${c['hue']}, ${c['sat']}, ${c['lum']})`)
+
+    if (data['animation']) {
+      state.innerHTML = `
+        <span>Animation: ${data['animation']}</span>
+        <span>Last Modified: ${lastModified.toLocaleString()}</span>`
+    } else {
+      state.innerHTML = `
+        <span>Colors: ${colors.join(', ')}</span>
+        <span>Multiplier: ${data['multipler']}</span>
+        <span>Last Modified: ${lastModified.toLocaleString()}</span>`
+    }
+  });
+}
+
+updateState();
 
 // Source: https://github.com/kittsville/pride-flag-generator/blob/5f3b26270a6032185dd89197b248cc60c224500f/assets/definitions.js
 class ColorTools {

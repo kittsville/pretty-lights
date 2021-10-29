@@ -19,6 +19,11 @@ h4 {
   border-radius: 0.2em;
 }
 
+#state span {
+  display: list-item;
+  list-style: none;
+}
+
 em {
   display: block;
 }
