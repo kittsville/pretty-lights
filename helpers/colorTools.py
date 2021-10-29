@@ -62,15 +62,18 @@ def generateLedColumns(colors):
     if len(colors) > len(LED_COLUMNS):
         raise web.badrequest(f"Too many colours given, LED lights only have {len(LED_COLUMNS)} columns")
     else:
-        num_color_columns = int(len(LED_COLUMNS) / len(colors))
+        columnsPerColor = int(len(LED_COLUMNS) / len(colors))
         remainder = len(LED_COLUMNS) % len(colors)
     ledColors = []
 
     for i, color in enumerate(colors):
-        num_leds_in_color_column = sum(LED_COLUMNS[i + remainder:i + remainder + num_color_columns])
+        firstPos    = columnsPerColor * i
+        secondPos   = firstPos + columnsPerColor
+
+        numLedsInColumn = sum(LED_COLUMNS[firstPos + remainder:secondPos + remainder])
         if i == 0:
-            num_leds_in_color_column += sum(LED_COLUMNS[i:i + remainder])
-        columnColors = [color] * num_leds_in_color_column
+            numLedsInColumn += sum(LED_COLUMNS[i:i + remainder])
+        columnColors = [color] * numLedsInColumn
         ledColors.extend(columnColors)
 
     return ledColors
