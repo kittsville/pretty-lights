@@ -1,7 +1,9 @@
 const white = chroma('white');
 const black = chroma('black');
-const statusBar = document.getElementById('status');
-const state     = document.getElementById('state');
+const statusBar     = document.getElementById('status');
+const state         = document.getElementById('state');
+const lockButton    = document.getElementById('lock');
+const unlockButton  = document.getElementById('unlock');
 const addStatus = statusText => {
   const status = document.createElement('em');
   status.textContent = statusText;
@@ -140,21 +142,57 @@ const updateState = async function() {
   .then(data => {
     const lastModified  = new Date(data['lastModified'] * 1000);
     const colors        = data['colors'].map(c => `(${c['hue']}, ${c['sat']}, ${c['lum']})`)
+    let stateText       = '';
 
     if (data['animation']) {
-      state.innerHTML = `
-        <span>Animation: ${data['animation']}</span>
-        <span>Last Modified: ${lastModified.toLocaleString()}</span>`
+      stateText = `<span>Animation: ${data['animation']}</span>`
     } else {
-      state.innerHTML = `
+      stateText = `
         <span>Colors: ${colors.join(', ')}</span>
-        <span>Multiplier: ${data['multipler']}</span>
-        <span>Last Modified: ${lastModified.toLocaleString()}</span>`
+        <span>Multiplier: ${data['multipler']}</span>`
     }
+
+    stateText += `<span>Last Modified: ${lastModified.toLocaleString()}</span>`;
+
+    if (data['lockedBy']) {
+      lockButton.hidden   = true;
+      unlockButton.hidden = false;
+
+      stateText += `<span>Locked By: ${data['lockedBy']}</span>`;
+    } else {
+      lockButton.hidden   = false;
+      unlockButton.hidden = true;
+    }
+
+    state.innerHTML = stateText;
   });
 }
 
 updateState();
+
+lockButton.addEventListener('click', () => {
+  fetch('lock', { method  : 'POST' })
+    .then(response => {
+      addStatus(response.statusText)
+
+      if (response.ok) {
+        updateState();
+      }
+    })
+    .catch(e => addStatus('Error: ' + e));
+});
+
+unlockButton.addEventListener('click', () => {
+  fetch('lock', { method  : 'DELETE' })
+    .then(response => {
+      addStatus(response.statusText)
+
+      if (response.ok) {
+        updateState();
+      }
+    })
+    .catch(e => addStatus('Error: ' + e));
+});
 
 // Source: https://github.com/kittsville/pride-flag-generator/blob/5f3b26270a6032185dd89197b248cc60c224500f/assets/definitions.js
 class ColorTools {

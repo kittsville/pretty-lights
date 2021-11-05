@@ -27,7 +27,8 @@ urls = (
     '/lights', 'lights',
     '/animations/(.+)', 'animation',
     '/random/(.+)', 'randomColor',
-    '/state', 'ledState'
+    '/state', 'ledState',
+    '/lock', 'lock'
 )
 render = web.template.render('templates/')
 app = web.application(urls, globals())
@@ -47,9 +48,13 @@ class randomColor:
         if onlyOnIdle:
             secondUntilIdle = state.lastModified + SECONDS_TO_IDLE - now
 
+            if state.lockedBy:
+                logging.info(f"Ignoring automated colour request, colours locked by {state.lockedBy}")
+                return web.NotModified()
+
             if secondUntilIdle > 0:
                 logging.info(f"Ignoring automated colour request, not idle for another {secondUntilIdle / 60} mins")
-                return
+                return web.NotModified()
 
         hue     = colorTools.generateRandomDifferentHue(state.colors[0].hue) if len(state.colors) > 0 else colorTools.generateRandomHue()
         color   = colorTools.Color.fromHue(hue)
@@ -128,7 +133,24 @@ class animation:
 class ledState:
     def GET(self):
         # Blah blah blah API boundaries
-        return r.get('pl:state')
+        return r.get(State.REDIS_KEY)
+
+class lock:
+    def POST(self):
+        state           = State.fromRedis(r)
+        state.lockedBy  = web.ctx['ip']
+
+        state.save(r)
+
+        return web.Created()
+
+    def DELETE(self):
+        state           = State.fromRedis(r)
+        state.lockedBy  = None
+
+        state.save(r)
+
+        return web.NoContent()
 
 if __name__ == "__main__":
     app.run()
