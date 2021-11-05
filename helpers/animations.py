@@ -9,6 +9,15 @@ class Animation:
     name    = 'base-animation'
 
     def generateColor(self, t, i, c, y):
+        """
+        Render a single pixel as part of a larger animation
+
+        :param t: Time in seconds, including nanoseconds
+        :param i: Index of pixel
+        :param c: Index of pixel's column
+        :param y: Pixel's height within column
+        :return: Pixel's Color
+        """
         value = 255 if t % 2 == 0 else 0
         return Color(value, value, value)
 
