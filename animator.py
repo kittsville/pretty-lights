@@ -56,17 +56,14 @@ def send(msg):
     with mp.connection.Client(address) as conn:
         conn.send(msg)
 
+
+logging.basicConfig(format='[%(process)s] %(levelname)s: %(message)s', level=logging.INFO)
+
 if __name__ == '__main__':
     address = ('localhost', 6000)
     q       = mp.Queue()
     p       = mp.Process(target=animationLoop, args=(q,))
     p.start()
-
-    logging.basicConfig(format='[%(process)s] %(levelname)s: %(message)s', level=logging.INFO)
-
-    # logger = logging.getLogger()
-    #
-    # logger.basicConfig(format='[%(process)s] %(levelname)s: %(message)s', level=logging.INFO)
 
     with mp.connection.Listener(address) as listener:
         logging.info("Listening for connections...")
