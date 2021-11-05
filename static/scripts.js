@@ -46,7 +46,7 @@ const sendColors = (colors, multiplier) => {
 
 document.getElementById('custom-color').addEventListener(
   'input',
-  ev => sendColors([convertColor(chroma(ev.target.value))])
+  ev => sendColors([convertColor(chroma(ev.target.value))], 'columns')
 );
 
 document.getElementById('random').addEventListener('click', () => {

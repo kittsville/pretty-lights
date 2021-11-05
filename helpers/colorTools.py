@@ -44,6 +44,10 @@ class Color:
 
         return Color(hue, sat, lum)
 
+    @staticmethod
+    def none():
+        return Color(0, 0, 0)
+
 
 def getValue(params, name):
     if name not in params:

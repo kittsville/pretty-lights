@@ -76,4 +76,23 @@ class Ripples(Animation):
 
         return Color(self.hue, sat, lum)
 
+class Matrix(Animation):
+    name        = 'matrix'
+    greenHue    = 89
+    trailLength = 5
+    height      = max(microcontroller.LED_COLUMNS) + trailLength
+    span        = height * sum(microcontroller.LED_COLUMNS)
+
+    def generateColor(self, t, i, c, y):
+        trailStart = (t * 8) % Matrix.height
+
+        if y <= trailStart and y >= trailStart - Matrix.trailLength:
+            distFromTrailStart  = trailStart - y
+            normalisedDFTS      = distFromTrailStart / Matrix.trailLength
+            intensity           = 1 - normalisedDFTS
+            lum                 = int(255 * intensity)
+            return Color(Matrix.greenHue, 255, lum)
+        else:
+            return Color.none()
+
 animations = {animation.name: animation for animation in Animation.__subclasses__()}
