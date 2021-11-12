@@ -88,12 +88,18 @@ class Ripples(Animation):
 class Matrix(Animation):
     name        = 'matrix'
     greenHue    = 89
-    trailLength = 5
+    trailLength = 8
+    speed       = 8
     height      = max(microcontroller.LED_COLUMNS) + trailLength
     span        = height * sum(microcontroller.LED_COLUMNS)
 
+    # Slowest 3
+    # Fastest 15
+
     def generateColor(self, t, i, c, y):
-        trailStart = (t * 8) % Matrix.height
+        offset      = c * len(microcontroller.LED_COLUMNS)
+        trailStart  = (t * Matrix.speed + offset) % Matrix.height
+
 
         if y <= trailStart and y >= trailStart - Matrix.trailLength:
             distFromTrailStart  = trailStart - y
