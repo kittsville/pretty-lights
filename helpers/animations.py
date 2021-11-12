@@ -92,6 +92,7 @@ class Matrix(Animation):
     speed       = 8
     height      = max(microcontroller.LED_COLUMNS) + trailLength
     span        = height * sum(microcontroller.LED_COLUMNS)
+    trailStartLength = 0.5
 
     # Slowest 3
     # Fastest 15
@@ -100,11 +101,15 @@ class Matrix(Animation):
         offset      = c * len(microcontroller.LED_COLUMNS)
         trailStart  = (t * Matrix.speed + offset) % Matrix.height
 
-
-        if y <= trailStart and y >= trailStart - Matrix.trailLength:
+        if y <= trailStart and y >= trailStart - Matrix.trailStartLength:
             distFromTrailStart  = trailStart - y
-            normalisedDFTS      = distFromTrailStart / Matrix.trailLength
-            intensity           = 1 - normalisedDFTS
+            intensity           = distFromTrailStart / Matrix.trailStartLength
+            lum                 = int(255 * intensity)
+            return Color(Matrix.greenHue, 255, lum)
+        elif y <= trailStart and y >= trailStart - Matrix.trailLength:
+            distFromTrailPeak   = trailStart - y - Matrix.trailStartLength
+            normalisedDFTP      = distFromTrailPeak / (Matrix.trailLength - Matrix.trailStartLength)
+            intensity           = 1 - normalisedDFTP
             lum                 = int(255 * intensity)
             return Color(Matrix.greenHue, 255, lum)
         else:
