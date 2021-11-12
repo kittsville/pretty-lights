@@ -86,13 +86,14 @@ class Ripples(Animation):
         return Color(self.hue, sat, lum)
 
 class Matrix(Animation):
-    name        = 'matrix'
+    name = 'matrix'
+    
+    trailStartLength    = 0.75
+    trailLength         = 8
     greenHue    = 89
-    trailLength = 8
     speed       = 8
     height      = max(microcontroller.LED_COLUMNS) + trailLength
     span        = height * sum(microcontroller.LED_COLUMNS)
-    trailStartLength = 0.75
 
     # Slowest 3
     # Fastest 15
