@@ -87,7 +87,7 @@ class Ripples(Animation):
 
 class Matrix(Animation):
     name = 'matrix'
-    
+
     trailStartLength    = 0.75
     trailLength         = 8
     greenHue    = 89
