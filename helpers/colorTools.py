@@ -23,6 +23,9 @@ class Color:
             'lum'   : self.lum
         }
 
+    def __repr__(self):
+        return f'Color(hue: {self.hue}, sat: {self.sat}, lum: {self.lum})'
+
     @staticmethod
     def fromDict(params):
         hue = getValue(params, 'hue')
