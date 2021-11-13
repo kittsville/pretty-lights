@@ -23,6 +23,12 @@ class Color:
             'lum'   : self.lum
         }
 
+    def clone(self):
+        return Color(self.hue, self.sat, self.lum)
+
+    def multiplyBy(self, num):
+        return [self] + [self.clone() for _ in range(num - 1)]
+
     def __repr__(self):
         return f'Color(hue: {self.hue}, sat: {self.sat}, lum: {self.lum})'
 
@@ -89,7 +95,7 @@ def generateLedColumns(colors):
         numLedsInColumn = sum(LED_COLUMNS[firstPos + remainder:secondPos + remainder])
         if i == 0:
             numLedsInColumn += sum(LED_COLUMNS[i:i + remainder])
-        columnColors = [color] * numLedsInColumn
+        columnColors = color.multiplyBy(numLedsInColumn)
         ledColors.extend(columnColors)
 
     return ledColors
@@ -101,7 +107,7 @@ def generateLedBlocks(colors, multiplier):
     ledColors = []
     while len(ledColors) < NUM_LEDS:
         for color in colors:
-            ledColorBlock = [color] * multiplier
+            ledColorBlock = color.multiplyBy(multiplier)
             ledColors.extend(ledColorBlock)
 
     ledColors = ledColors[0:NUM_LEDS]
@@ -127,7 +133,7 @@ def generateGradientColumns(firstColor, secondColor):
     colors = []
 
     for i, color in enumerate(gradient):
-        column_colors = [color] * LED_COLUMNS[i]
+        column_colors = color.multiplyBy(LED_COLUMNS[i])
 
         colors.extend(column_colors)
 

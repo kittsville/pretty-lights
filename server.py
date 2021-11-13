@@ -60,7 +60,7 @@ class randomColor:
         color   = colorTools.Color.fromHue(hue)
 
         if type == 'single':
-            colors = [color] * 100
+            colors = colorcolor.multiplyBy(100)
 
             newState = State(now, [color], Multiplier.SINGLE_COLOR)
         elif type == 'columns':
