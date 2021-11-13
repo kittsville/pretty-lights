@@ -8,7 +8,7 @@ import functools
 
 import animator
 
-from helpers import colorTools, microcontroller, animations
+from helpers import colorTools, microcontroller, animations, dimmer
 from helpers.state import State, Multiplier
 
 from multiprocessing.connection import Client
@@ -81,7 +81,7 @@ class randomColor:
 
         animator.send('__sleep')
 
-        response = microcontroller.sendColors(colors)
+        response = microcontroller.sendColors(dimmer.dimColorsIfNight(colors))
 
         newState.save(r)
 
@@ -112,7 +112,7 @@ class lights:
         oldState = State.fromRedis(r)
         animator.send('__sleep')
 
-        response = microcontroller.sendColors(ledColors)
+        response = microcontroller.sendColors(dimmer.dimColorsIfNight(ledColors))
 
         newState.save(r)
 
