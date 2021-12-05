@@ -85,35 +85,52 @@ class Ripples(Animation):
 
         return Color(self.hue, sat, lum)
 
-class Matrix(Animation):
-    name = 'matrix'
 
+class Trails:
     trailStartLength    = 0.75
-    trailLength         = 8
-    greenHue    = 89
-    speed       = 8
-    height      = max(microcontroller.LED_COLUMNS) + trailLength
-    span        = height * sum(microcontroller.LED_COLUMNS)
+    greenHue            = 89
 
     # Slowest 3
     # Fastest 15
 
+    def __init__(self, speed, trailLength):
+        self.speed          = speed
+        self.trailLength    = trailLength
+        self.height         = max(microcontroller.LED_COLUMNS) + trailLength
+
     def generateColor(self, t, i, c, y):
         offset      = c * len(microcontroller.LED_COLUMNS)
-        trailStart  = (t * Matrix.speed + offset) % Matrix.height
+        trailStart  = (t * self.speed + offset) % self.height
 
-        if y <= trailStart and y >= trailStart - Matrix.trailStartLength:
+        if y <= trailStart and y >= trailStart - Trails.trailStartLength:
             distFromTrailStart  = trailStart - y
-            intensity           = distFromTrailStart / Matrix.trailStartLength
+            intensity           = distFromTrailStart / Trails.trailStartLength
             lum                 = int(255 * intensity)
-            return Color(Matrix.greenHue, 175, lum)
-        elif y <= trailStart and y >= trailStart - Matrix.trailLength:
-            distFromTrailPeak   = trailStart - y - Matrix.trailStartLength
-            normalisedDFTP      = distFromTrailPeak / (Matrix.trailLength - Matrix.trailStartLength)
+            return Color(Trails.greenHue, 175, lum)
+        elif y <= trailStart and y >= trailStart - self.trailLength:
+            distFromTrailPeak   = trailStart - y - Trails.trailStartLength
+            normalisedDFTP      = distFromTrailPeak / (self.trailLength - Trails.trailStartLength)
             intensity           = 1 - normalisedDFTP
             lum                 = int(255 * intensity)
-            return Color(Matrix.greenHue, 255, lum)
+            return Color(Trails.greenHue, 255, lum)
         else:
             return Color.none()
+
+
+
+class Matrix(Animation):
+    name = 'matrix'
+
+    fastTrails = Trails(8, 8)
+    slowTrails = Trails(4, 4)
+
+    def generateColor(self, t, i, c, y):
+        fTPixel = Matrix.fastTrails.generateColor(t, i, c, y)
+        sTPixel = Matrix.slowTrails.generateColor(t, i, c, y)
+
+        if fTPixel.lum > sTPixel.lum:
+            return fTPixel
+        else:
+            return sTPixel
 
 animations = {animation.name: animation for animation in Animation.__subclasses__()}
