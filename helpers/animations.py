@@ -89,9 +89,7 @@ class Ripples(Animation):
 class Trails:
     trailStartLength    = 0.75
     greenHue            = 89
-
-    # Slowest 3
-    # Fastest 15
+    numLedColumns       = len(microcontroller.LED_COLUMNS)
 
     def __init__(self, speed, trailLength):
         self.speed          = speed
@@ -102,14 +100,19 @@ class Trails:
         offset      = c * len(microcontroller.LED_COLUMNS)
         trailStart  = (t * self.speed + offset) % self.height
 
+        column                  = Trails.numLedColumns - c
+        normalisedColumn        = column / Trails.numLedColumns
+        trailLengthMultiplier   = 1 + (.375 * normalisedColumn)
+        relativeTrailLength     = self.trailLength * trailLengthMultiplier
+
         if y <= trailStart and y >= trailStart - Trails.trailStartLength:
             distFromTrailStart  = trailStart - y
             intensity           = distFromTrailStart / Trails.trailStartLength
             lum                 = int(255 * intensity)
             return Color(Trails.greenHue, 175, lum)
-        elif y <= trailStart and y >= trailStart - self.trailLength:
+        elif y <= trailStart and y >= trailStart - relativeTrailLength:
             distFromTrailPeak   = trailStart - y - Trails.trailStartLength
-            normalisedDFTP      = distFromTrailPeak / (self.trailLength - Trails.trailStartLength)
+            normalisedDFTP      = distFromTrailPeak / (relativeTrailLength - Trails.trailStartLength)
             intensity           = 1 - normalisedDFTP
             lum                 = int(255 * intensity)
             return Color(Trails.greenHue, 255, lum)
