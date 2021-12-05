@@ -21,6 +21,9 @@ class Animation:
         value = 255 if t % 2 == 0 else 0
         return Color(value, value, value)
 
+    def combineAnimations(self, t, i, c, y, animations):
+        return max(map(lambda animation: animation.generateColor(t, i, c, y), animations), key=lambda color: color.lum)
+
 class Breathing(Animation):
     name        = 'breathing'
     lumRange    = 255 - microcontroller.MIN_LUM
@@ -88,13 +91,13 @@ class Ripples(Animation):
 
 class Trails:
     trailStartLength    = 0.75
-    greenHue            = 89
     numLedColumns       = len(microcontroller.LED_COLUMNS)
 
-    def __init__(self, speed, trailLength):
+    def __init__(self, speed, trailLength, hue):
         self.speed          = speed
         self.trailLength    = trailLength
         self.height         = max(microcontroller.LED_COLUMNS) + trailLength
+        self.hue            = hue
 
     def generateColor(self, t, i, c, y):
         offset      = c * len(microcontroller.LED_COLUMNS)
@@ -109,28 +112,29 @@ class Trails:
             distFromTrailStart  = trailStart - y
             intensity           = distFromTrailStart / Trails.trailStartLength
             lum                 = int(255 * intensity)
-            return Color(Trails.greenHue, 175, lum)
+            return Color(self.hue, 175, lum)
         elif y <= trailStart and y >= trailStart - relativeTrailLength:
             distFromTrailPeak   = trailStart - y - Trails.trailStartLength
             normalisedDFTP      = distFromTrailPeak / (relativeTrailLength - Trails.trailStartLength)
             intensity           = 1 - normalisedDFTP
             lum                 = int(255 * intensity)
-            return Color(Trails.greenHue, 255, lum)
+            return Color(self.hue, 255, lum)
         else:
             return Color.none()
 
 
 
 class Matrix(Animation):
-    name = 'matrix'
+    name        = 'matrix'
+    greenHue    = 89
 
     trails = [
-        Trails(8, 8),
-        Trails(6, 6),
-        Trails(4, 4)
+        Trails(8, 8, greenHue),
+        Trails(6, 6, greenHue),
+        Trails(4, 4, greenHue)
     ]
 
     def generateColor(self, t, i, c, y):
-        return max(map(lambda trailGenerator: trailGenerator.generateColor(t, i, c, y), Matrix.trails), key=lambda x: x.lum)
+        return self.combineAnimations(t, i, c, y, Matrix.trails)
 
 animations = {animation.name: animation for animation in Animation.__subclasses__()}
