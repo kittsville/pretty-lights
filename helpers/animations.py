@@ -121,16 +121,13 @@ class Trails:
 class Matrix(Animation):
     name = 'matrix'
 
-    fastTrails = Trails(8, 8)
-    slowTrails = Trails(4, 4)
+    trails = [
+        Trails(8, 8),
+        Trails(6, 6),
+        Trails(4, 4)
+    ]
 
     def generateColor(self, t, i, c, y):
-        fTPixel = Matrix.fastTrails.generateColor(t, i, c, y)
-        sTPixel = Matrix.slowTrails.generateColor(t, i, c, y)
-
-        if fTPixel.lum > sTPixel.lum:
-            return fTPixel
-        else:
-            return sTPixel
+        return max(map(lambda trailGenerator: trailGenerator.generateColor(t, i, c, y), Matrix.trails), key=lambda x: x.lum)
 
 animations = {animation.name: animation for animation in Animation.__subclasses__()}
