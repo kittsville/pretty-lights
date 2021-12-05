@@ -122,8 +122,6 @@ class Trails:
         else:
             return Color.none()
 
-
-
 class Matrix(Animation):
     name        = 'matrix'
     greenHue    = 89
@@ -136,5 +134,18 @@ class Matrix(Animation):
 
     def generateColor(self, t, i, c, y):
         return self.combineAnimations(t, i, c, y, Matrix.trails)
+
+class Raining(Animation):
+    name    = 'raining'
+    rainHue = 135
+
+    trails = [
+        Trails(12, 5, rainHue),
+        Trails(10, 5, rainHue),
+        Trails(8, 4, rainHue)
+    ]
+
+    def generateColor(self, t, i, c, y):
+        return self.combineAnimations(t, i, c, y, Raining.trails)
 
 animations = {animation.name: animation for animation in Animation.__subclasses__()}
