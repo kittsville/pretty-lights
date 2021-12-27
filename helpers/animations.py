@@ -1,4 +1,5 @@
 import math
+import time
 import random
 
 from helpers import microcontroller
@@ -147,5 +148,20 @@ class Raining(Animation):
 
     def generateColor(self, t, i, c, y):
         return self.combineAnimations(t, i, c, y, Raining.trails)
+
+class Flash(Animation):
+    name    = 'flash'
+
+    duration    = 0.6
+
+    def __init__(self):
+        self.startTime = time.time()
+        self.endTime = self.startTime + Flash.duration
+
+    def generateColor(self, t, i, c, y):
+        normalisedLum   = max(0, self.endTime - t)
+        lum             = int(normalisedLum * 255)
+
+        return Color(255, 0, lum)
 
 animations = {animation.name: animation for animation in Animation.__subclasses__()}
