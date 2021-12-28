@@ -4,7 +4,8 @@ import sys
 
 import animator
 
-from helpers import animations
+from helpers import colorTools, microcontroller, animations
+from helpers.colorTools import Color
 from multiprocessing.connection import Client
 
 levelDirectory = sys.argv[1]
@@ -37,10 +38,22 @@ for event in lightingEvents:
 
     time.sleep(timeUntilEvent)
 
-    if event['_value'] == 3:
-        animator.send(animations.Flash())
+    if event['_value'] == 0:
+        animator.send(None)
+        ledColors = colorTools.generateLedColumns([Color(255, 255, 127)])
+        microcontroller.sendColors(ledColors)
+    elif event['_value'] == 2:
+        animator.send(animations.FlashFadeDim(135))
+    elif event['_value'] == 3:
+        animator.send(animations.FlashFadeOff(135))
+    elif event['_value'] == 5:
+        animator.send(None)
+        ledColors = colorTools.generateLedColumns([Color(255, 255, 127)])
+        microcontroller.sendColors(ledColors)
+    elif event['_value'] == 6:
+        animator.send(animations.FlashFadeDim(255))
     elif event['_value'] == 7:
-        animator.send(animations.Flash())
+        animator.send(animations.FlashFadeOff(255))
     else:
         print(f"Unsupported event value {event['_value']}")
 

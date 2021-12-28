@@ -149,19 +149,36 @@ class Raining(Animation):
     def generateColor(self, t, i, c, y):
         return self.combineAnimations(t, i, c, y, Raining.trails)
 
-class Flash(Animation):
-    name    = 'flash'
+class FlashFadeOff(Animation):
+    name    = 'flash-fade'
 
     duration    = 0.6
 
-    def __init__(self):
+    def __init__(self, hue):
+        self.hue = hue
         self.startTime = time.time()
-        self.endTime = self.startTime + Flash.duration
+        self.endTime = self.startTime + FlashFadeOff.duration
 
     def generateColor(self, t, i, c, y):
         normalisedLum   = max(0, self.endTime - t)
         lum             = int(normalisedLum * 255)
 
-        return Color(255, 0, lum)
+        return Color(self.hue, 255, lum)
+
+class FlashFadeDim(Animation):
+    name    = 'flash'
+
+    duration    = 0.6
+
+    def __init__(self, hue):
+        self.hue = hue
+        self.startTime = time.time()
+        self.endTime = self.startTime + FlashFadeDim.duration
+
+    def generateColor(self, t, i, c, y):
+        normalisedLum   = max(0, self.endTime - t)
+        lum             = int((normalisedLum * 127.5) + 127.5)
+
+        return Color(self.hue, 255, lum)
 
 animations = {animation.name: animation for animation in Animation.__subclasses__()}
