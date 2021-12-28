@@ -12,25 +12,24 @@ def animationLoop(q):
 
     # # Uncomment for testing animations
     # sleep = False
-    # animationClass = animations.Rampant()
+    # animationInstance = animations.Rampant()
 
     logger = logging.getLogger()
 
     while True:
         if not q.empty() or sleep: # TODO: Only check every 1/2 second
-            msg = q.get() # TODO: get() second time to freeze if given Sleep command
-            logging.info(f'Recieved message "{msg}"')
+            animationInstance = q.get() # TODO: get() second time to freeze if given Sleep command
+            logger.info(f'Recieved message "{animationInstance}"')
 
-            if msg == '__sleep':
-                logging.info('Sleeping animation loop...')
+            if animationInstance is None:
+                logger.info('Sleeping animation loop...')
                 sleep = True
                 continue
             else:
                 if sleep:
-                    logging.info('Waking animation loop...')
+                    logger.info('Waking animation loop...')
                     sleep = False
-                logging.info(f'Updating animation to "{msg}"')
-                animationClass = animations.animations[msg]()
+                logger.info(f'Updating animation to "{animationInstance.__class__.name}"')
 
         t       = time.time()
         colors  = []
@@ -40,7 +39,7 @@ def animationLoop(q):
         for c, columnLength in enumerate(microcontroller.LED_COLUMNS):
             for y in range(columnLength):
                 relativeY = y if c % 2 == 0 else columnLength - y
-                colors.append(animationClass.generateColor(t, i, c, relativeY))
+                colors.append(animationInstance.generateColor(t, i, c, relativeY))
 
                 i += 1
 
@@ -48,7 +47,7 @@ def animationLoop(q):
             microcontroller.fireAndForgetColors(colors)
         except socket.timeout:
             pass
-        time.sleep(1 / animationClass.fps) # TODO: Scale based on time left
+        time.sleep(1 / animationInstance.fps) # TODO: Scale based on time left
 
 def send(msg):
     address = ('localhost', 6000)

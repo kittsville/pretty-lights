@@ -4,6 +4,7 @@ import sys
 
 import animator
 
+from helpers import animations
 from multiprocessing.connection import Client
 
 levelDirectory = sys.argv[1]
@@ -37,9 +38,9 @@ for event in lightingEvents:
     time.sleep(timeUntilEvent)
 
     if event['_value'] == 3:
-        animator.send('flash')
+        animator.send(animations.Flash())
     elif event['_value'] == 7:
-        animator.send('flash')
+        animator.send(animations.Flash())
     else:
         print(f"Unsupported event value {event['_value']}")
 

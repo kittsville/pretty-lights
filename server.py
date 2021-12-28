@@ -79,7 +79,7 @@ class randomColor:
         else:
             raise web.badrequest(f'Unknown type of random display, given "{type}"')
 
-        animator.send('__sleep')
+        animator.send(None)
 
         response = microcontroller.sendColors(dimmer.dimColorsIfNight(colors))
 
@@ -110,7 +110,7 @@ class lights:
             raise web.badrequest(f'Unknown multiplier "{multiplier}"')
 
         oldState = State.fromRedis(r)
-        animator.send('__sleep')
+        animator.send(None)
 
         response = microcontroller.sendColors(dimmer.dimColorsIfNight(ledColors))
 
@@ -123,8 +123,10 @@ class animation:
         if not name in animations.animations:
             animationNames = ", ".join(animations.animations.keys())
             raise web.badrequest(f'No animation found with name "{name}". Available: {animationNames}')
+        else:
+            animationInstance = animations.animations[name]()
 
-        animator.send(name)
+        animator.send(animationInstance)
 
         lastModified    = int(time.time())
         newState        = State(lastModified, [], Multiplier.NONE, name)
