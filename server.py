@@ -60,7 +60,7 @@ class randomColor:
         color   = colorTools.Color.fromHue(hue)
 
         if type == 'single':
-            colors = colorcolor.multiplyBy(100)
+            colors = color.multiplyBy(microcontroller.NUM_LEDS)
 
             newState = State(now, [color], Multiplier.SINGLE_COLOR)
         elif type == 'columns':
