@@ -10,4 +10,4 @@ Automate colour changes with cron:
 
 `*/30 * * * * curl -X POST "localhost:8090/random?automated=1"`
 
-Note: You can't the frequency of automated colour changes faster than `SECONDS_TO_IDLE`
+Note: You can't change the frequency of automated colour changes faster than `SECONDS_TO_IDLE`
