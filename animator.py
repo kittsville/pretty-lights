@@ -11,7 +11,7 @@ def animationLoop(q):
     sleep = True
 
     # # Uncomment for testing animations
-    # sleep = False
+    # sleep = True
     # animationInstance = animations.Rampant()
 
     logger = logging.getLogger()

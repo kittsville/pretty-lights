@@ -24,6 +24,37 @@ class Animation:
 
     def combineAnimations(self, t, i, c, y, animations):
         return max(map(lambda animation: animation.generateColor(t, i, c, y), animations), key=lambda color: color.lum)
+    
+class StepThrough(Animation):
+    fps     = 2
+    name    = 'step-through-colors'
+    colors  = [Color(0, 0, 0), Color(255, 255, 255)]
+
+    def __init__(self):
+        self.colors = StepThrough.colors
+
+    def generateColor(self, t, i, c, y):
+        num_colors = len(self.colors)
+        color_index = (int(t) + (i % num_colors)) % num_colors
+        color = self.colors[color_index]
+        return color
+    
+class Christmas1(StepThrough):
+    fps     = 2
+    name    = 'christmas-1'
+    colors  = [Color(0, 0, 200), Color.fromHue(36)]
+
+    def __init__(self):
+        self.colors = Christmas1.colors
+
+    
+class Christmas2(StepThrough):
+    fps     = 2
+    name    = 'christmas-2'
+    colors  = [Color.fromHue(1), Color.fromHue(89), Color.fromHue(36)]
+
+    def __init__(self):
+        self.colors = Christmas2.colors
 
 class Breathing(Animation):
     name        = 'breathing'
@@ -181,4 +212,15 @@ class FlashFadeDim(Animation):
 
         return Color(self.hue, 255, lum)
 
-animations = {animation.name: animation for animation in Animation.__subclasses__()}
+def getRecursiveSubclasses(class_instance, first_call = True):
+    names = {}
+
+    if not first_call:
+        names.update([(class_instance.name, class_instance)])
+
+    for subclass in class_instance.__subclasses__():
+        names.update(getRecursiveSubclasses(subclass, False))
+
+    return names
+
+animations = getRecursiveSubclasses(Animation)
